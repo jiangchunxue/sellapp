@@ -120,8 +120,9 @@ export default {
       justify-content: flex-start;
       position: relative;
        img {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
+        padding: 5px 5px;
       }
        .sty {
         //   width: 100%;

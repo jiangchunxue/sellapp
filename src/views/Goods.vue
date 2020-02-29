@@ -106,7 +106,6 @@ export default {
 
   .right-div {
     flex: 1; 
-    // background-color: tomato;
     overflow: scroll;
     h5 {
       line-height: 20px;
@@ -115,7 +114,6 @@ export default {
     
      
   .foods-child {
-      //    width: 100%;
       display: flex;
       justify-content: flex-start;
       position: relative;
@@ -125,15 +123,11 @@ export default {
         padding: 5px 5px;
       }
        .sty {
-        //   width: 100%;
         display: flex;
         flex-wrap: wrap;
-        //   position: relative;
-        //   border: 1px solid #000;
         .one {
           position: absolute;
           margin-left: 2%;
-          // width: 100%;
         }
         .type {
           margin-top: 6%;

@@ -179,10 +179,11 @@ justify-content: flex-start;
      }
      
          .box2{
-         display: inline-block;
+         display:block;
+         float: left;
          width: 60px;
          height: 20px;
-         border: 1px solid #000;
+         border: 1px solid #ccc;
          margin-right: 5px;
     
      }

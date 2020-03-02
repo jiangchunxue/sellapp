@@ -168,11 +168,11 @@ justify-content: flex-start;
          float: left;
        
      }
-     span{
-         position: relative;
-         right: -260px;
-         bottom: 23px;
-     }
+    //  span{
+    //      position: relative;
+    //      right: -260px;
+    //      bottom: 23px;
+    //  }
      p{
          margin-top: 20px;
          float: left;
@@ -183,7 +183,8 @@ justify-content: flex-start;
          float: left;
          width: 60px;
          height: 20px;
-         border: 1px solid #ccc;
+         margin-left: 10px;
+        //  border: 1px solid #000;
          margin-right: 5px;
     
      }

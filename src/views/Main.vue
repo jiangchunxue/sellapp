@@ -28,14 +28,21 @@
 <router-link to='/merchant'>商家</router-link>
 </div>
 <router-view></router-view>
-<div class="shopcar"> 
+
+<transition  name="slide-fade" >
+      <div v-show="shopcarShow" class="shopcar-board">
+          <shop-car></shop-car>
+      </div>
+    </transition>
+
+<div class="shopcar"  @click="shopcarShow = !shopcarShow"> 
     <div class="car">
         <img style="width:50px;height:50px" src="../assets/images/shopcar.png" alt="">
         
     </div>
-    <span class="totle">￥0</span>
-        <span>|另需配送费￥4元</span>
-      <div class="box">￥20起送</div>
+    <span class="totle">￥{{getTotal}}</span>
+        <span>|另需配送费￥{{data.deliveryPrice}}元</span>
+      <div class="box">￥{{data.minPrice}}起送</div>
 </div> 
     </div>
 </template>
@@ -45,6 +52,7 @@ import { getSeller } from '../api/apis'
 export default {
   data() {
     return {
+       shopcarShow: false,  
       data: {
       } //商家信息
     };
@@ -54,11 +62,26 @@ export default {
       console.log(res.data.data);
       this.data = res.data.data;
     });
-  }
+  },
+  computed: {
+      goodslist(){
+      return this.$store.state.goodslist;
+    },
+    
+  },
+  methods: {
+  },
 };
 </script>
 
 <style lang="less" scoped>
+.shopcar-board{
+  position: fixed;  
+//   height: 200px;
+  width: 100%;
+  bottom: 60px;
+  background-color: rgba(172, 165, 165,0.8);
+}
 .main-top{
     width: 100%;
     height: 150px;
@@ -126,15 +149,14 @@ background-repeat: repeat;
   width: 100%;
   bottom: 0; //永远挨着浏览器底边
   background-color: #141c27;
-  position: relative;
   display: flex;
   .box{
        width: 100px;
        height: 60px;
        background-color: rgb(183, 183, 187);
-       position: flex;
+       position: fixed;
        right: 0px;
-       top: 0;
+      bottom: 0;
        line-height: 60px;
        text-align: center;
    }
@@ -142,7 +164,8 @@ background-repeat: repeat;
       line-height: 60px;
   }
   .totle{
-      margin-left:60px;
+      margin-left:80px;
+    //   line-height: 60px;
       font-size: 20px/2em;
       font-weight: bold;
   }
@@ -151,9 +174,9 @@ background-repeat: repeat;
       height: 60px;
      border-radius: 50%;
    background-color: #141c27;
-   position: flex;
+   position: absolute;
    top: -17px;
-   left: 46px;
+   left: 15px;
    img{
        margin-left: 5px;
        margin-top: 5px;

@@ -1,199 +1,196 @@
 <template>
-  <div class="goods-div">
-  
-    <div class="left-div">
-    
-      <ul class="content">
-       
-        <div
-          @click="clickLeftTitle(index)"
-          :class="{leftGoods: true, selected: index == curSelected }"
-          v-for="(item,index) in list"
-          :key="item.name">
-        <img style="width:12px;margin-top:-5px;" v-show="item.type==1" src="../assets/images/discount_1@2x.png" alt="">
-        <img style="width:12px" v-show="item.type==2" src="../assets/images/decrease_1@2x.png" alt="">
-          <span>{{ item.name }}</span>
+    <div class="goods">
+        <!-- 左边菜单 -->
+            <div class="goods-left">
+                <ul class="content">
+                  <div @click="clickchage(i)" :class="{gootsBox:true,selected:i==curIndex}" v-for="(v,i) in goodslist" :key="i">
+                <p>
+                <img v-show="v.type==2" src="../assets/images/special_1@2x.png" alt="">                    
+                <img v-show="v.type==1" src="../assets/images/discount_1@2x.png" alt="">                    
+                    {{v.name}}
+                </p>
+            </div>      
+                </ul>
         </div>
-      </ul>
-    </div>
-
-   
-    <div class="right-div">
-      <ul class="content">
-        <div :id="index" v-for="(item,index) in list" :key="item.id">
-          <h5>{{ item.name }}</h5>
-          <div v-for="child in item.foods" :key="child.id"  class="foods-child">
-            <img :src="child.icon" />
-            <div class="sty">
-              <span class="one">{{child.name}}</span>
-          <span class="type">{{child.description}}</span>
-          <span class="good">月售{{child.sellCount}}份，好评率100%</span>
-          <span class="four">￥{{child.price}} <span>￥{{child.oldPrice}}</span></span>
-          <span class="five">
-               <div class="reduce">-</div>
-                    <span>1</span>
-                <div class="add">+</div>
-          </span>
-         </div>
-          </div>
+        <!-- 右边商品 -->
+            <div class="goods-right">
+        <ul class="content">
+                <div  :id="i" v-for="(v,i) in goodslist" :key="i">
+                <h3>{{v.name}}</h3>
+                <div v-for="(child,index) in v.foods" :key="index" class="right">
+                        <img :src="child.image" alt="">
+                        <div class="rightText">
+                            <h4>{{child.name}}</h4>
+                            <p>{{child.description}}</p>
+                            <p>
+                                <span>月售{{child.sellCount}}份</span>
+                                <span>好评率{{child.rating}}%</span>
+                            </p>
+                            <div class="rightBottom">
+                                <span class="price">￥{{child.price}}</span>
+                                <del>{{child.oldPrice}}</del>
+                                <p class="btn">
+                                  <button v-show="child.num>0" @click="clickDec(child.name,-1)">-</button>
+                                    <span v-show="child.num>0">{{child.num}}</span>
+                                    <button class="add" @click="clickAdd(child.name,+1)">+</button>
+                                </p>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </ul>
         </div>
-      </ul>
     </div>
-  </div>
 </template>
 
 <script>
-import { getGoods } from "../api/apis";
 import BScroll from "better-scroll";
-
+import { getGoods } from "../api/apis";
 export default {
   data() {
     return {
-      list: [], 
-      curSelected: 0 
+      curIndex: 0,
+      isShow: true
     };
   },
   created() {
     getGoods().then(res => {
-  
-      this.list = res.data.data;
-      console.log(res.data);
+      console.log(res.data.data);
+      this.$store.commit("initGoodsList", res.data.data);
     });
   },
   mounted() {
-   
-    new BScroll(document.querySelector(".left-div"), {
-      click: true 
+    new BScroll(document.querySelector(".goods-left"), { click: true });
+    this.rightBox = new BScroll(document.querySelector(".goods-right"), {
+      probeType: 3 
     });
-
-    this.rightDiv = new BScroll(document.querySelector(".right-div"));
-
+    this.rightBox.on("scroll", ({ y }) => {
+      let _y = Math.abs(y);
+      console.log(_y);
+      for (let obj of this.getHeight) {
+        if (_y >= obj.min && _y < obj.max) {
+          this.curIndex = obj.index;
+          return;
+        }
+      }
+    });
+  },
+  computed: {
+    getHeight() {
+      var arr = [];
+      var total = 0;
+      for (let i = 0; i < this.goodslist.length; i++) {
+        let curHeight = document.getElementById(i).offsetHeight;
+        arr.push({ min: total, max: total + curHeight, index: i });
+        total += curHeight;
+      }
+      console.log(arr);
+      return arr;
+    },
+    goodslist() {
+      return this.$store.state.goodslist;
+    }
   },
   methods: {
-
-    clickLeftTitle(index) {
-      this.curSelected = index;
-      this.rightDiv.scrollToElement(document.getElementById(index), 400);
+    clickchage(index) {
+      this.curIndex = index;
+      this.rightBox.scrollToElement(document.getElementById(index), 600);
+    },
+    clickDec(name) {
+      this.$store.commit("clickReduce", name);
+    },
+    clickAdd(name) {
+      this.$store.commit("clickAdd", name);
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
-.selected {
-  background-color: #fff;
-}
-
-.goods-div {
+.goods {
   display: flex;
-  height:400px;
-
-  .left-div {
+  margin-top: 50px;
+  position: absolute;
+  width: 100%;
+  overflow: auto;
+  bottom: 50px;
+  top: 196px;
+  .goods-left {
     width: 80px;
-    background-color: #f4f5f7;
     height: 100%;
+    background-color: #f4f5f7;
     overflow: scroll;
-
-    .leftGoods {
+    .gootsBox {
       height: 60px;
       display: flex;
-      align-items: center; 
-      border-bottom: 1px solid #e0e1e3;
-       height: 50px;
-      margin: 0 4px;
+      align-items: center;
+      margin: 0 10px;
+      border-bottom: 1px solid #ccc;
+      font-size: 0.75rem;
+      img {
+        width: 18px;
+        height: 18px;
+        vertical-align: middle;
+      }
+    }
+    .selected {
+      background: #fff;
+      margin: 0;
+      padding-left: 10px;
     }
   }
-
-  .right-div {
-    flex: 1; 
+  .goods-right {
+    flex: 1;
+    height: 100%;
+    background-color: #f4f5f7;
     overflow: scroll;
-    h5 {
-      line-height: 20px;
-      padding: 5px 0;
-    } 
-    
-     
-  .foods-child {
+    h3 {
+      height: 30px;
+      line-height: 30px;
+      border-left: 2px solid #ccc;
+    }
+    .right {
+      height: 140px;
+      background-color: #fff;
+      padding: 15px;
       display: flex;
-      justify-content: flex-start;
-      position: relative;
-       img {
+      border-bottom: 1px solid #ccc;
+      .rightText {
+        padding-left: 10px;
+        span {
+          padding-right: 15px;
+        }
+        .rightBottom {
+          display: flex;
+          align-items: center;
+          .price {
+            font-size: 1rem;
+            color: red;
+          }
+          .btn {
+            display: flex;
+            button {
+              background-color: #fff;
+              border: 1px solid rgb(97, 111, 243);
+              width: 20px;
+              height: 20px;
+              border-radius: 20px;
+            }
+            span {
+              padding: 0 20px;
+            }
+            .add {
+              background-color: #049fdb;
+              color: #fff;
+            }
+          }
+        }
+      }
+      img {
         width: 80px;
         height: 80px;
-        padding: 5px 5px;
       }
-       .sty {
-        display: flex;
-        flex-wrap: wrap;
-        .one {
-          position: absolute;
-          margin-left: 2%;
-        }
-        .type {
-          margin-top: 6%;
-          margin-left: 2%;
-        }
-        .good {
-          margin-top: 10%;
-          margin-left: 1%;
-        }
-        .four {
-          color: red;
-          margin-top: 4%;
-
-          margin-left: 1%;
-          margin-right: 60%;
-          font-size: 14px;
-          font-weight: normal;
-          span {
-            color: rgb(196, 189, 189);
-            text-decoration: line-through;
-          }
-        }
-        .five {
-          display: flex;
-          display: inline-block;
-          height: 20px;
-          margin-top: -5%;
-          margin-left: 60%;
-          .reduce {
-            position: relative;
-            top: 0px;
-            left: 0px;
-            width: 20px;
-            height: 20px;
-            color: #fff;
-            line-height: 20px;
-            background-color: rgb(82, 92, 221);
-            text-align: center;
-            border-radius: 50%;
-            float: left;
-          }
-          span {
-            line-height: 20px;
-            position: relative;
-            top: 0px;
-            left: 0px;
-            margin-left: 5px;
-            margin-right: 5px;
-            float: left;
-          }
-          .add {
-            position: relative;
-            top: 0px;
-            left: 0px;
-            width: 20px;
-            height: 20px;
-            color: #fff;
-            line-height: 20px;
-            background-color: rgb(82, 92, 221);
-            text-align: center;
-            border-radius: 50%;
-            float: left;
-          }
-        }
-      }
-      }
+    }
   }
 }
 </style>
